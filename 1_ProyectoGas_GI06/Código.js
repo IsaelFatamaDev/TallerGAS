@@ -4,8 +4,34 @@ const TEMPLATE_ID = '1UDj-nuDKl_HnZHAABi-XG_YKO7_rH7b2gdjsbU-K-TQ';
 const COPY_FOLDER_ID = '17kyh6lKCZYItZSxeeBbg5G8HhfNQ2oYt';
 const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Respuestas de formulario 1');
 
-function registrarDato() {
-	const fila = sheet.getLastRow();
+function onOpen() {
+	const ui = SpreadsheetApp.getUi();
+	ui.createMenu('Procesar Solicitud') 
+		.addItem('Ingresar número de fila', 'mostrarDialogoFila')
+		.addToUi();
+}
+
+function mostrarDialogoFila() {
+	const ui = SpreadsheetApp.getUi();
+	const response = ui.prompt('Ingresar número de fila', 'Por favor ingresa el número de fila que deseas procesar:', ui.ButtonSet.OK_CANCEL);
+
+	if (response.getSelectedButton() == ui.Button.OK) {
+		const fila = parseInt(response.getResponseText(), 10);
+
+		if (!isNaN(fila) && fila > 1 && fila <= sheet.getLastRow()) {
+			registrarDato(fila);
+		} else {
+			ui.alert('Número de fila no válido. Por favor, ingresa un número de fila entre 2 y ' + sheet.getLastRow());
+		}
+	}
+}
+
+function registrarDato(fila) {
+	// Verificar si el número de fila es válido
+	if (fila < 2 || fila > sheet.getLastRow()) {
+		console.log('Número de fila no válido.');
+		return;
+	}
 
 	var marcaTemporal = Utilities.formatDate(sheet.getRange(fila, 1).getValue(), "America/Bogota", "dd/MMM/yyyy");
 	var email = sheet.getRange(fila, 2).getValue();
